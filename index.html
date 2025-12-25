@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>人口ピラミッド作成コード(PC向け)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>人口ピラミッドを作成するRのサンプルコード</h1>
+<p class="p1">最終修正日:2025年12月26日</p>
+<h2>年齢区分、男女の人口数、ラベルの名前、軸の色などは貼り付け後に各自で設定してください。<span class="comment">黄色部分</span>はそのまま貼り付けても影響しません。
+<br>
+<a href="https://scharodoashihana.github.io/henkan_tool/" target="_blank">
+  カンマ区切りツールはこちら
+</a>
+</h2>
+<button id="copyButton">下のコードをすべてコピー</button>
+<hr style="border-top: 3px dotted ">
+
+<pre id="rcode">
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(scales)
+
+
+male <- c(147,214,237,220,309,258,178,234,232,241,303,260,249,294,1003)<span class="comment">     # 男性の人口(サンプルデータは5歳区分の15区分)</span>
+female <- c(145,169,155,191,193,200,180,237,232,256,326,278,306,332,1532)<span class="comment">     # 女性の人口(サンプルデータは5歳区分の15区分)</span>
+age_group <- c("0～4","5～9","10～14","15～19","20～24","25～29","30～34","35～39","40～44","45～49","50～54","55～59","60～64","65～69","70～")<span class="comment">     # 年齢(サンプルデータは｢0～4歳｣から｢70歳以上｣までの15区分)</span>
+
+
+df <- data.frame(
+  Age = factor(age_group, levels = age_group),
+  Male = -male,
+  Female = female
+)
+
+df_long <- df %>%
+  pivot_longer(cols = c("Male","Female"),
+               names_to = "Sex", values_to = "Population")
+
+
+
+ggplot(df_long, aes(x = Population, y = Age, fill = Sex)) +
+  geom_bar(stat = "identity", width = 0.9) +<span class="comment">     # 軸同士の間隔の設定(1.0で両隣が重なる)</span>
+  geom_vline(xintercept = 0, color = "white", linewidth = 2) +
+  scale_x_continuous(
+    limits = c(-1750, 1750),<span class="comment">     # x軸の最大値の設定</span>
+    breaks = c(-1500, -1000, -500, 0, 500, 1000, 1500),<span class="comment">     # x軸の目盛りの設定</span>
+    labels = function(x) comma(abs(x)),
+    expand = c(0,0)
+) +
+  scale_fill_manual(values = c("Male" = "black", "Female" = "black")) +<span class="comment">    # 棒の色の設定(サンプルデータは男女ともに黒色)</span>
+  labs(x = "人口(人)", y = "年齢") +<span class="comment">      # ラベルの名前設定</span>
+  theme_minimal(base_size = 18) +
+  theme(
+    legend.position = "none",
+    axis.text.y = element_text(size = 16, face = "bold"),
+    axis.ticks.y = element_blank(),
+    axis.text.x = element_text(size = 14),
+    axis.title.x = element_text(size = 16, face = "bold"),
+    axis.title.y = element_text(size = 16, face = "bold"),
+    plot.margin = margin(10, 40, 10, 40)
+)
+</pre>
+<div id="pyramid-wrapper">
+    <p2 id="p2">完成したサンプルデータの人口ピラミッド→
+    </p2><img src="sakusei.png" id="pyramid">
+</div>
+<script src="script.js"></script>
+</body>
+</html>
